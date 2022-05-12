@@ -1,9 +1,10 @@
 package io.github.liuyuyu.embedded.mysql.demo;
 
-import com.wix.mysql.distribution.Version;
+import java.util.Arrays;
+
 import org.junit.Test;
 
-import java.util.Arrays;
+import com.wix.mysql.distribution.Version;
 
 public class SimpleJunitTest {
     @Test

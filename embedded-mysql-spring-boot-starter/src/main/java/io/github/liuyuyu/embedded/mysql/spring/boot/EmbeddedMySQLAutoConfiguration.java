@@ -1,7 +1,10 @@
 package io.github.liuyuyu.embedded.mysql.spring.boot;
 import com.wix.mysql.EmbeddedMysql;
+import com.wix.mysql.EmbeddedMysql.Builder;
 import com.wix.mysql.Sources;
 import com.wix.mysql.config.MysqldConfig;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -29,31 +32,36 @@ public class EmbeddedMySQLAutoConfiguration implements InitializingBean {
     @Autowired private ApplicationContext applicationContext;
 
     public void init(){
-        String[] dataFileLocations = this.mySQLProperties.getScriptLocations();
+        final String[] dataFileLocations = this.mySQLProperties.getScriptLocations();
 
-        List<Resource> resourcesList = new ArrayList<>();
+        final List<Resource> resourcesList = new ArrayList<>();
         if (dataFileLocations != null) {
-            for (String dataFileLocation : dataFileLocations) {
+            for (final String dataFileLocation : dataFileLocations) {
                 try {
-                    Resource[] resources = applicationContext.getResources(dataFileLocation);
+                    final Resource[] resources = applicationContext.getResources(dataFileLocation);
                     resourcesList.addAll(Arrays.asList(resources));
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     //ignore
                 }
             }
         }
 
 
-        MysqldConfig mysqldConfig = this.mySQLProperties.toMysqldConfig()
+        final MysqldConfig mysqldConfig = this.mySQLProperties.toMysqldConfig()
                 .build();
 
-        EmbeddedMysql mysqlServer = anEmbeddedMysql(mysqldConfig)
+        Builder embeddedMysqlBuilder = anEmbeddedMysql(mysqldConfig);
+        if (StringUtils.isNotBlank(this.mySQLProperties.getDatabaseName())) {
+            embeddedMysqlBuilder = embeddedMysqlBuilder.addSchema(this.mySQLProperties.getDatabaseName());
+        }
+
+        final EmbeddedMysql mysqlServer = embeddedMysqlBuilder
                 .start();
         if (!resourcesList.isEmpty()) {
-            for (Resource resource : resourcesList) {
+            for (final Resource resource : resourcesList) {
                 try {
                     mysqlServer.executeScripts(this.mySQLProperties.getDatabaseName(), Sources.fromFile(resource.getFile()));
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new RuntimeException(String.format("data file:%s load fail",resource.getFilename()),e);
                 }
             }

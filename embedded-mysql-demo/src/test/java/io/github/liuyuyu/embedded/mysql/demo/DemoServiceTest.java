@@ -1,13 +1,11 @@
 package io.github.liuyuyu.embedded.mysql.demo;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class DemoServiceTest extends EmbeddedMysqlDemoApplicationTests {
     @Autowired private DemoService demoService;
